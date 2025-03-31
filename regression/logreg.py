@@ -119,36 +119,39 @@ class LogisticRegressor(BaseRegressor):
     
     def make_prediction(self, X) -> np.array:
         """
-        TODO: Implement logistic function to get estimates (y_pred) for input X values. The logistic
-        function is a transformation of the linear model into an "S-shaped" curve that can be used
-        for binary classification.
+        Apply the logistic function (sigmoid) to the linear combination of inputs and weights.
 
         Arguments: 
             X (np.ndarray): Matrix of feature values.
 
         Returns: 
-            The predicted labels (y_pred) for given X.
+            The predicted probabilities (y_pred) for given X.
         """
-        pass
+
+        z = np.dot(X, self.W)  # Linear combination
+        y_pred = 1 / (1 + np.exp(-z))  # Sigmoid function
+        
+        return y_pred
     
     def loss_function(self, y_true, y_pred) -> float:
         """
-        TODO: Implement binary cross entropy loss, which assumes that the true labels are either
-        0 or 1. (This can be extended to more than two classes, but here we have just two.)
+        Compute binary cross-entropy loss.
 
         Arguments:
             y_true (np.array): True labels.
-            y_pred (np.array): Predicted labels.
+            y_pred (np.array): Predicted probabilities.
 
         Returns: 
-            The mean loss (a single number).
+            The mean binary cross-entropy loss.
         """
-        pass
-        
+        epsilon = 1e-9
+        y1 = y_true * np.log(y_pred + epsilon)
+        y2 = (1-y_true) * np.log(1 - y_pred + epsilon)
+        return -np.mean(y1 + y2)
+    
     def calculate_gradient(self, y_true, X) -> np.ndarray:
         """
-        TODO: Calculate the gradient of the loss function with respect to the given data. This
-        will be used to update the weights during training.
+        Compute the gradient of the binary cross-entropy loss with respect to weights.
 
         Arguments:
             y_true (np.array): True labels.
@@ -157,4 +160,9 @@ class LogisticRegressor(BaseRegressor):
         Returns: 
             Vector of gradients.
         """
-        pass
+        y_pred = self.make_prediction(X)
+        # Compute gradient        
+        
+        return np.dot(X.T, (y_pred - y_true)) / X.shape[0]
+    
+    #used https://medium.com/@koushikkushal95/logistic-regression-from-scratch-dfb8527a4226 & chatgpt
